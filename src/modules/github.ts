@@ -85,7 +85,8 @@ export const pickupInfoFromGithubPayload = (
         title: payload.pull_request?.title || "",
         url: payload.review.html_url,
         senderName: payload.sender?.login || "",
-        notifyType: "normal",
+        notifyType:
+          payload.review.state === "approved" ? "pr_review_approved" : "normal",
       };
     }
 
