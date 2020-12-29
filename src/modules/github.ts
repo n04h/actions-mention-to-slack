@@ -15,6 +15,8 @@ export const pickupUsername = (text: string): string[] => {
   return uniq(hits).map((username) => username.replace("@", ""));
 };
 
+type NotifyType = "normal" | "pr_review_approved";
+
 const acceptActionTypes = {
   issues: ["opened", "edited"],
   issue_comment: ["created", "edited"],
@@ -36,6 +38,7 @@ export const pickupInfoFromGithubPayload = (
   title: string;
   url: string;
   senderName: string;
+  notifyType: NotifyType;
 } => {
   const { action } = payload;
 
@@ -54,6 +57,7 @@ export const pickupInfoFromGithubPayload = (
         title: payload.issue.title,
         url: payload.comment.html_url,
         senderName: payload.sender?.login || "",
+        notifyType: "normal",
       };
     }
 
@@ -66,6 +70,7 @@ export const pickupInfoFromGithubPayload = (
       title: payload.issue.title,
       url: payload.issue.html_url || "",
       senderName: payload.sender?.login || "",
+      notifyType: "normal",
     };
   }
 
@@ -80,6 +85,7 @@ export const pickupInfoFromGithubPayload = (
         title: payload.pull_request?.title || "",
         url: payload.review.html_url,
         senderName: payload.sender?.login || "",
+        notifyType: "normal",
       };
     }
 
@@ -93,6 +99,7 @@ export const pickupInfoFromGithubPayload = (
         title: payload.pull_request.title,
         url: payload.comment.html_url,
         senderName: payload.sender?.login || "",
+        notifyType: "normal",
       };
     }
 
@@ -105,6 +112,7 @@ export const pickupInfoFromGithubPayload = (
       title: payload.pull_request.title,
       url: payload.pull_request.html_url || "",
       senderName: payload.sender?.login || "",
+      notifyType: "normal",
     };
   }
 
@@ -112,7 +120,7 @@ export const pickupInfoFromGithubPayload = (
 };
 
 type MappingFile = {
-  [githugUsername: string]: string | undefined;
+  [githubUsername: string]: string | undefined;
 };
 
 export const GithubRepositoryImpl = {

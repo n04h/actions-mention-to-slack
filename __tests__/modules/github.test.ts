@@ -54,6 +54,7 @@ describe("modules/github", () => {
           title: "issue title",
           url: "issue url",
           senderName: "sender_github_username",
+          notifyType: "normal",
         });
       });
 
@@ -66,6 +67,7 @@ describe("modules/github", () => {
           title: "issue title",
           url: "issue url",
           senderName: "sender_github_username",
+          notifyType: "normal",
         });
       });
 
@@ -110,6 +112,7 @@ describe("modules/github", () => {
           title: "issue title",
           url: "comment url",
           senderName: "sender_github_username",
+          notifyType: "normal",
         });
       });
 
@@ -137,6 +140,7 @@ describe("modules/github", () => {
           title: "issue title",
           url: "comment url",
           senderName: "sender_github_username",
+          notifyType: "normal",
         });
       });
 
@@ -149,6 +153,7 @@ describe("modules/github", () => {
           title: "issue title",
           url: "comment url",
           senderName: "sender_github_username",
+          notifyType: "normal",
         });
       });
 
@@ -188,6 +193,7 @@ describe("modules/github", () => {
           title: "pr title",
           url: "pr url",
           senderName: "sender_github_username",
+          notifyType: "normal",
         });
       });
 
@@ -200,6 +206,7 @@ describe("modules/github", () => {
           title: "pr title",
           url: "pr url",
           senderName: "sender_github_username",
+          notifyType: "normal",
         });
       });
 
@@ -244,6 +251,7 @@ describe("modules/github", () => {
           title: "pr title",
           url: "comment url",
           senderName: "sender_github_username",
+          notifyType: "normal",
         });
       });
 
@@ -256,6 +264,7 @@ describe("modules/github", () => {
           title: "pr title",
           url: "comment url",
           senderName: "sender_github_username",
+          notifyType: "normal",
         });
       });
 
@@ -272,7 +281,7 @@ describe("modules/github", () => {
     });
 
     describe("pr review event", () => {
-      const buildPrReviewPayload = (action: string) => {
+      const buildPrReviewPayload = (action: string, state: string) => {
         return {
           action,
           pull_request: {
@@ -284,6 +293,7 @@ describe("modules/github", () => {
             body: "review body",
             title: "review title",
             html_url: "review url",
+            state,
           },
           sender: {
             login: "sender_github_username",
@@ -292,7 +302,7 @@ describe("modules/github", () => {
       };
 
       it("should return when review submitted", () => {
-        const dummyPayload = buildPrReviewPayload("submitted");
+        const dummyPayload = buildPrReviewPayload("submitted", "some state");
         const result = pickupInfoFromGithubPayload(dummyPayload as any);
 
         expect(result).toEqual({
@@ -300,6 +310,20 @@ describe("modules/github", () => {
           title: "pr title",
           url: "review url",
           senderName: "sender_github_username",
+          notifyType: "normal",
+        });
+      });
+
+      it("should return when review submitted and approved", () => {
+        const dummyPayload = buildPrReviewPayload("submitted", "approved");
+        const result = pickupInfoFromGithubPayload(dummyPayload as any);
+
+        expect(result).toEqual({
+          body: "review body",
+          title: "pr title",
+          url: "review url",
+          senderName: "sender_github_username",
+          notifyType: "pr_review_approved",
         });
       });
     });
