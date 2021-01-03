@@ -3,6 +3,7 @@ import {
   execPrReviewRequestedMention,
   execNormalMention,
   AllInputs,
+  execPrApprovedMention,
 } from "../src/main";
 
 describe("src/main", () => {
@@ -259,6 +260,96 @@ describe("src/main", () => {
         dummyContext
       );
 
+      expect(slackMock.postToSlack.mock.calls.length).toEqual(0);
+    });
+  });
+
+  describe("execPrApprovedMention", () => {
+    const dummyInputs: AllInputs = {
+      repoToken: "",
+      configurationPath: "",
+      slackWebhookUrl: "dummy_url",
+      iconUrl: "",
+      botName: "",
+    };
+
+    const dummyMapping = {
+      github_user_1: "slack_user_1",
+      github_team_1: "slack_user_2",
+    };
+
+    it("should call postToSlack if requested_user is listed in mapping", async () => {
+      const githubMock = {
+        loadNameMappingConfig: jest.fn().mockResolvedValueOnce(dummyMapping),
+      };
+
+      const slackMock = {
+        postToSlack: jest.fn(),
+      };
+
+      const dummyPayload = {
+        review: {
+          state: "approved",
+        },
+        pull_request: {
+          title: "pr_title",
+          html_url: "pr_url",
+          owner: "github_user_1",
+        },
+        sender: {
+          login: "sender_github_username",
+        },
+      };
+
+      await execPrApprovedMention(
+        dummyPayload as any,
+        dummyInputs,
+        githubMock,
+        slackMock,
+        dummyContext
+      );
+
+      expect(slackMock.postToSlack.mock.calls.length).toEqual(1);
+
+      const call = slackMock.postToSlack.mock.calls[0];
+      expect(call[0]).toEqual("dummy_url");
+      expect(call[1].includes("<@slack_user_1>")).toEqual(true);
+      expect(call[1].includes("<pr_url|pr_title>")).toEqual(true);
+      expect(call[1].includes("by sender_github_username")).toEqual(true);
+    });
+
+    it("should not call postToSlack if requested_user is not listed in mapping", async () => {
+      const githubMock = {
+        loadNameMappingConfig: jest.fn().mockResolvedValueOnce(dummyMapping),
+      };
+
+      const slackMock = {
+        postToSlack: jest.fn(),
+      };
+
+      const dummyPayload = {
+        review: {
+          state: "approved",
+        },
+        pull_request: {
+          title: "pr_title",
+          html_url: "pr_url",
+          owner: "not_listed_user",
+        },
+        sender: {
+          login: "sender_github_username",
+        },
+      };
+
+      await execPrApprovedMention(
+        dummyPayload as any,
+        dummyInputs,
+        githubMock,
+        slackMock,
+        dummyContext
+      );
+
+      expect(githubMock.loadNameMappingConfig.mock.calls.length).toEqual(1);
       expect(slackMock.postToSlack.mock.calls.length).toEqual(0);
     });
   });

@@ -83,6 +83,43 @@ export const execPrReviewRequestedMention = async (
   await slackClient.postToSlack(slackWebhookUrl, message, { iconUrl, botName });
 };
 
+export const execPrApprovedMention = async (
+  payload: WebhookPayload,
+  allInputs: AllInputs,
+  githubClient: typeof GithubRepositoryImpl,
+  slackClient: typeof SlackRepositoryImpl,
+  context: Pick<Context, "repo" | "sha">
+): Promise<void> => {
+  const { repoToken, configurationPath } = allInputs;
+  const approvedGithubUsername = payload.pull_request?.owner;
+
+  if (!approvedGithubUsername) {
+    throw new Error("Can not find review approved user.");
+  }
+
+  const slackIds = await convertToSlackUsername(
+    [approvedGithubUsername],
+    githubClient,
+    repoToken,
+    configurationPath,
+    context
+  );
+
+  if (slackIds.length === 0) {
+    return;
+  }
+
+  const title = payload.pull_request?.title;
+  const url = payload.pull_request?.html_url;
+  const approvedSlackUserId = slackIds[0];
+  const approveUsername = payload.sender?.login;
+
+  const message = `<@${approvedSlackUserId}> has been approved <${url}|${title}> by ${approveUsername}.`;
+  const { slackWebhookUrl, iconUrl, botName } = allInputs;
+
+  await slackClient.postToSlack(slackWebhookUrl, message, { iconUrl, botName });
+};
+
 export const execNormalMention = async (
   payload: WebhookPayload,
   allInputs: AllInputs,
@@ -195,6 +232,17 @@ export const main = async (): Promise<void> => {
       return;
     }
 
+    if (payload.review.state === true) {
+      await execPrApprovedMention(
+        payload,
+        allInputs,
+        GithubRepositoryImpl,
+        SlackRepositoryImpl,
+        context
+      );
+      return;
+    }
+
     await execNormalMention(
       payload,
       allInputs,
@@ -203,7 +251,7 @@ export const main = async (): Promise<void> => {
       context
     );
   } catch (error) {
-    await execPostError(error, allInputs, SlackRepositoryImpl);
     core.warning(JSON.stringify({ payload }));
+    await execPostError(error, allInputs, SlackRepositoryImpl);
   }
 };
