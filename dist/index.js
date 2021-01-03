@@ -1624,6 +1624,7 @@ const getAllInputs = () => {
     };
 };
 const main = async () => {
+    var _a;
     const { payload } = github_1.context;
     const allInputs = getAllInputs();
     try {
@@ -1631,14 +1632,14 @@ const main = async () => {
             await exports.execPrReviewRequestedMention(payload, allInputs, github_2.GithubRepositoryImpl, slack_1.SlackRepositoryImpl, github_1.context);
             return;
         }
-        if (payload.review.state === true) {
+        if (((_a = payload.review) === null || _a === void 0 ? void 0 : _a.state) === true) {
             await exports.execPrApprovedMention(payload, allInputs, github_2.GithubRepositoryImpl, slack_1.SlackRepositoryImpl, github_1.context);
             return;
         }
         await exports.execNormalMention(payload, allInputs, github_2.GithubRepositoryImpl, slack_1.SlackRepositoryImpl, github_1.context);
     }
     catch (error) {
-        core.warning(JSON.stringify({ payload }));
+        core.warning(JSON.stringify({ payload }, null, 2));
         await exports.execPostError(error, allInputs, slack_1.SlackRepositoryImpl);
     }
 };
