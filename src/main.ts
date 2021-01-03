@@ -232,7 +232,7 @@ export const main = async (): Promise<void> => {
       return;
     }
 
-    if (payload.review.state === true) {
+    if (payload.review?.state === true) {
       await execPrApprovedMention(
         payload,
         allInputs,
@@ -251,7 +251,7 @@ export const main = async (): Promise<void> => {
       context
     );
   } catch (error) {
-    core.warning(JSON.stringify({ payload }));
+    core.warning(JSON.stringify({ payload }, null, 2));
     await execPostError(error, allInputs, SlackRepositoryImpl);
   }
 };
