@@ -35,9 +35,9 @@ jobs:
       - name: Run
         uses: ./
         with:
-          configuration: "https://gist.githubusercontent.com/n04h/8b7079d40884c7995176f8ce1ad2f5b8/raw/4321e0d0fc73d932cd51b685b4dea3295078e03b/mention-to-slack.yml"
+          configuration: ${{ secrets.GIST_MENTION_CONFIG_URL }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          slack-webhook-url: https://example.com/
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           icon-url: https://img.icons8.com/color/256/000000/github-2.png
           bot-name: "Send Mention from abeyuya/actions-mention-to-slack"
           run-id: ${{ github.run_id }}
