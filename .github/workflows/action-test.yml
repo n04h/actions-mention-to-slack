@@ -21,12 +21,6 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "12.13.1"
-      - name: Checkout release
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git checkout release
-          git merge origin/master --no-commit --no-ff
       - name: Cache npm
         uses: actions/cache@v2
         with:
@@ -41,7 +35,7 @@ jobs:
       - name: Run
         uses: ./
         with:
-          configuration: https://gist.githubusercontent.com/n04h/8b7079d40884c7995176f8ce1ad2f5b8/raw/4321e0d0fc73d932cd51b685b4dea3295078e03b/mention-to-slack.yml
+          configuration: "https://gist.githubusercontent.com/n04h/8b7079d40884c7995176f8ce1ad2f5b8/raw/4321e0d0fc73d932cd51b685b4dea3295078e03b/mention-to-slack.yml"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           slack-webhook-url: https://example.com/
           icon-url: https://img.icons8.com/color/256/000000/github-2.png
